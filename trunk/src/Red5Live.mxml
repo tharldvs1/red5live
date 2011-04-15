@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Application xmlns:fx="http://ns.adobe.com/mxml/2009"
+			   xmlns:s="library://ns.adobe.com/flex/spark"
+			   xmlns:mx="library://ns.adobe.com/flex/mx"
+			   minWidth="800"
+			   minHeight="700"
+			   applicationComplete="init()">
+	<fx:Declarations>
+		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
+	</fx:Declarations>
+
+	<fx:Script>
+		<![CDATA[
+			import flash.events.NetStatusEvent;
+			import flash.media.Microphone;
+			import flash.net.NetConnection;
+			import flash.net.NetStream;
+
+			import mx.controls.Alert;
+
+
+			private var nc:NetConnection;
+			private var ns:NetStream;
+			private var cam:Camera;
+			private var mic:Microphone;
+
+			private function init():void
+			{
+				ti.text = Statics.serverIP;
+				
+				nc=new NetConnection();
+				nc.addEventListener(NetStatusEvent.NET_STATUS, connectServerHander);
+				nc.addEventListener(SecurityErrorEvent.SECURITY_ERROR, securityErrorHandler);
+
+				nc.client=this;
+			}
+
+			private function publishHandler(event:MouseEvent):void
+			{
+				if (ti.text == null || ti.text == "")
+				{
+					Alert.show("先填入服务器地址");
+				}
+				else
+				{
+					//nc.connect("rtmp://172.20.204.50/oflaDemo"); //   172.20.204.50      localhost
+
+					nc.connect("rtmp://" + ti.text + "/oflaDemo");
+				}
+			}
+
+			private function connectServerHander(evt:NetStatusEvent):void
+			{
+				//Alert.show("evt.info.code="+evt.info.code);//NetConnection.Connect.Success
+
+				if (evt.info.code == "NetConnection.Connect.Success")
+				{
+					cam=Camera.getCamera();
+					mic=Microphone.getMicrophone();
+					
+					if (cam != null && mic!=null)
+					{
+						cam.setMode(Statics.serverWidth, Statics.serverHeight, 30, false);
+						cam.setQuality(0, 100);
+						cam.setMotionLevel(0, 20000);
+						cam.setKeyFrameInterval(1); //1~48，1表示每一帧都是关键帧
+						
+						mic.setUseEchoSuppression(false); //回声
+						mic.setLoopBack(true); //传送至本地扬声器
+						mic.setSilenceLevel(0, 2000); // 0~100，100完全停止麦克风检测静音，从而不发送activity 事件，0则细微的声音也会捕获； 0~2000毫秒，判断声音停止时间。
+						mic.gain=100; //麦克风放大信号的程度。有效值为 0 到 100。默认值为 50。
+						
+						
+						
+						
+						
+						//trace("camera size："+cam.width+"x"+cam.height);//default 160*120
+
+						ns=new NetStream(nc);
+						ns.addEventListener(NetStatusEvent.NET_STATUS, connectServerHander);
+						ns.attachCamera(cam);
+						ns.attachAudio(mic);
+
+						ns.publish("red5");
+
+						var vi:Video=new Video();
+						vi.width=Statics.clientWidth;
+						vi.height=Statics.clientHeight;
+						vi.attachCamera(cam);
+						videoDisplay.addChild(vi);
+
+						publishBtn.mouseEnabled=false;
+
+					}
+					else
+					{
+						Alert.show("未检测到视频音频设备或该设备被占用！");
+					}
+				}
+				else if(evt.info.code == "NetStream.Publish.BadName")
+				{
+					Alert.show("视频已发布！");
+				}
+				else if(evt.info.code == "NetConnection.Connect.Closed")
+				{
+					Alert.show("关闭连接！");
+				}
+				else
+				{
+					//Alert.show("evt.info.code="+evt.info.code);
+					Test.t(evt.info.code);
+				}
+			}
+
+			private function securityErrorHandler(event:SecurityErrorEvent):void
+			{
+				Alert.show("securityErrorHandler: " + event);
+			}
+			
+			
+			public function onBWDone():void
+			{
+
+			}
+		]]>
+	</fx:Script>
+
+	<s:VGroup>
+		<s:Label text="先填入服务器地址"/>
+		<s:TextInput id="ti"
+					 width="200"
+					 text=""/>
+
+		<s:Button id="publishBtn"
+				  label="publish"
+				  click="publishHandler(event)"/>
+
+		<s:VideoDisplay id="videoDisplay"/>
+		
+	</s:VGroup>
+
+
+
+
+
+
+
+</s:Application>
