@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Application xmlns:fx="http://ns.adobe.com/mxml/2009"
+			   xmlns:s="library://ns.adobe.com/flex/spark"
+			   xmlns:mx="library://ns.adobe.com/flex/mx"
+			   minWidth="800"
+			   minHeight="700"
+			   applicationComplete="init()">
+	<s:layout>
+		<s:BasicLayout/>
+	</s:layout>
+	<fx:Declarations>
+		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
+	</fx:Declarations>
+
+	<fx:Script>
+		<![CDATA[
+			import flash.display.*;
+			import flash.events.*;
+			import flash.media.Camera;
+			import flash.media.Video;
+			import flash.net.*;
+			import flash.utils.*;
+
+			import mx.controls.Alert;
+
+			private var nc:NetConnection;
+
+			private function init():void
+			{
+				//Alert.show("先填入服务器地址");
+				
+				ti.text = Statics.serverIP;
+			}
+
+
+			private function playHandler(event:MouseEvent):void
+			{
+				if (ti.text == null || ti.text == "")
+				{
+					Alert.show("先填入服务器地址");
+				}
+				else
+				{
+					nc=new NetConnection();
+					nc.addEventListener(NetStatusEvent.NET_STATUS, connectHandler);
+					nc.client=this;
+					nc.connect("rtmp://" + ti.text + "/oflaDemo");//nc.connect("rtmp://172.20.204.50/oflaDemo");
+					
+				}
+			}
+
+
+			private function connectHandler(evt:NetStatusEvent):void
+			{
+				if (evt.info.code == "NetConnection.Connect.Success")
+				{
+					var ns:NetStream=new NetStream(nc);
+					var video:Video=new Video();
+					video.width=Statics.clientWidth;
+					video.height=Statics.clientHeight;
+					video.attachNetStream(ns);
+					ns.play("red5");
+					videoDisplay.addChild(video);
+				}
+				else
+				{
+					Alert.show("服务器连接失败");
+				}
+
+			}
+
+
+			public function onBWDone():void
+			{
+
+			}
+		]]>
+	</fx:Script>
+
+
+	<s:VGroup>
+		<s:Label text="先填入服务器地址" />
+		<s:TextInput id="ti"
+					 width="200"
+					 text=""/>
+		<s:Button id="playBtn"
+				  label="play"
+				  click="playHandler(event)"/>
+		<s:VideoDisplay id="videoDisplay"/>
+	</s:VGroup>
+
+</s:Application>
