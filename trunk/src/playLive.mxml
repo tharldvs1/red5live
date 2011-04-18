@@ -20,8 +20,9 @@
 			import flash.media.Video;
 			import flash.net.*;
 			import flash.utils.*;
-
+			
 			import mx.controls.Alert;
+			import mx.core.IVisualElement;
 
 			private var nc:NetConnection;
 
@@ -44,31 +45,54 @@
 					nc=new NetConnection();
 					nc.addEventListener(NetStatusEvent.NET_STATUS, connectHandler);
 					nc.client=this;
-					nc.connect("rtmp://" + ti.text + "/oflaDemo");//nc.connect("rtmp://172.20.204.50/oflaDemo");
-					
+					nc.connect("rtmp://" + ti.text + "/oflaDemo");
 				}
 			}
 
 
 			private function connectHandler(evt:NetStatusEvent):void
 			{
+				
+				/**
+				 * NetStream.Play.UnpublishNotify  流取消
+				 * 
+				 */ 
+				
+				Test.t(evt.info.code);
+				
 				if (evt.info.code == "NetConnection.Connect.Success")
 				{
+					
 					var ns:NetStream=new NetStream(nc);
+					//ns.client = new CustomClient;
+					ns.addEventListener(NetStatusEvent.NET_STATUS, connectHandler);
+					
 					var video:Video=new Video();
 					video.width=Statics.clientWidth;
 					video.height=Statics.clientHeight;
 					video.attachNetStream(ns);
-					ns.play("red5");
+					ns.play("red5live");
 					videoDisplay.addChild(video);
+					
+					playBtn.mouseEnabled=false;
+					
+					//Test.t(ns.objectEncoding);
+					
+					
+					
+					
+					//videoDisplay.source = "rtmp://" + ti.text + "/oflaDemo/red5";
 				}
 				else
 				{
-					Alert.show("服务器连接失败");
+					
+					//Alert.show("服务器连接失败");
+					//Test.t(evt.info.code);
 				}
+				
+				
 
 			}
-
 
 			public function onBWDone():void
 			{
@@ -86,7 +110,7 @@
 		<s:Button id="playBtn"
 				  label="play"
 				  click="playHandler(event)"/>
-		<s:VideoDisplay id="videoDisplay"/>
+		<s:VideoDisplay id="videoDisplay" />
 	</s:VGroup>
 
 </s:Application>
