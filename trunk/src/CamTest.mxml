@@ -30,8 +30,8 @@
 
 			private function init():void
 			{
-				//flash.media.scanHardware();
-				Alert.show(Camera.names.length+"个设备："+Camera.names.toString());
+				Test.t(Camera.names.length+"个视频设备："+Camera.names.toString());
+				Test.t(Microphone.names.length+"个声音设备："+Microphone.names.toString());
 			}
 
 			
