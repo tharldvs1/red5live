@@ -43,9 +43,7 @@
 				}
 				else
 				{
-					//nc.connect("rtmp://172.20.204.50/oflaDemo"); //   172.20.204.50      localhost
-
-					nc.connect("rtmp://" + ti.text + "/oflaDemo");
+					nc.connect(Statics.streamServer(ti.text));
 				}
 			}
 
@@ -81,7 +79,7 @@
 						ns.attachCamera(cam);
 						ns.attachAudio(mic);
 
-						ns.publish("red5live");
+						ns.publish(Statics.streamNAME);
 
 						var vi:Video=new Video();
 						vi.width=Statics.clientWidth;

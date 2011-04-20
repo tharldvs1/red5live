@@ -28,8 +28,6 @@
 
 			private function init():void
 			{
-				//Alert.show("先填入服务器地址");
-				
 				ti.text = Statics.serverIP;
 			}
 
@@ -45,7 +43,7 @@
 					nc=new NetConnection();
 					nc.addEventListener(NetStatusEvent.NET_STATUS, connectHandler);
 					nc.client=this;
-					nc.connect("rtmp://" + ti.text + "/oflaDemo");
+					nc.connect(Statics.streamServer(ti.text));
 				}
 			}
 
@@ -62,26 +60,20 @@
 				
 				if (evt.info.code == "NetConnection.Connect.Success")
 				{
-					
 					var ns:NetStream=new NetStream(nc);
-					//ns.client = new CustomClient;
+					ns.client = new CustomClient;
 					ns.addEventListener(NetStatusEvent.NET_STATUS, connectHandler);
 					
 					var video:Video=new Video();
 					video.width=Statics.clientWidth;
 					video.height=Statics.clientHeight;
 					video.attachNetStream(ns);
-					ns.play("red5live");
 					videoDisplay.addChild(video);
 					
+					ns.play(Statics.streamNAME);
+
 					playBtn.mouseEnabled=false;
 					
-					//Test.t(ns.objectEncoding);
-					
-					
-					
-					
-					//videoDisplay.source = "rtmp://" + ti.text + "/oflaDemo/red5";
 				}
 				else
 				{
