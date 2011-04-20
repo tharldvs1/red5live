@@ -1,5 +1,7 @@
 package
 {
+	import flash.net.LocalConnection;
+	
 	public class Statics
 	{
 		
@@ -9,7 +11,12 @@ package
 		public static const clientWidth:int = 400;
 		public static const clientHeight:int = 300;
 		
-		public static const serverIP:String = "172.20.207.212";//172.20.207.212    172.20.204.50	
+		
+		public static function get serverIP():String
+		{
+			var conn:LocalConnection = new LocalConnection;
+			return conn.domain;
+		}
 		public static const serverNAME:String = "oflaDemo";
 		public static const streamNAME:String = "red5Live";
 		public static function streamServer(_ip:String):String
