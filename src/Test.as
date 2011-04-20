@@ -8,14 +8,32 @@
 	 */
 	public class Test
 	{
-		static public function t(str:Object):void
+		static public function t(_obj:Object):void
 		{
-			ExternalInterface.call("test", str.toString());
+			if(_obj == null)
+			{
+				ExternalInterface.call("test", "测试参数:null");
+				trace("测试参数:null");
+			}
+			else
+			{
+				ExternalInterface.call("test", _obj.toString());
+				trace(_obj.toString());
+			}
 		}
 
-		static public function tt(str:Object):void
+		static public function tt(_obj:Object):void
 		{
-			ExternalInterface.call("test1", str.toString());
+			if(_obj == null)
+			{
+				ExternalInterface.call("test1", "测试参数:null");
+				trace("测试参数:null");
+			}
+			else
+			{
+				ExternalInterface.call("test1", _obj.toString());
+				trace(_obj.toString());
+			}
 		}
 	}
 
