@@ -29,8 +29,10 @@ package
 		 * http://172.20.204.50:5080/oflaDemo/Red5Live/pages/publish.html
 		 * http://172.20.204.50:5080/oflaDemo/Red5Live/pages/play.html
 		 * 
-		 * 
-		 * 
+		 * 60.195.252.20:
+		 * http://test1.myyule.com.cn:8082/Red5Live/pages/publish.html
+		 * http://test1.myyule.com.cn:8082/Red5Live/pages/play.html
+		 *
 		 */ 
 		
 		
