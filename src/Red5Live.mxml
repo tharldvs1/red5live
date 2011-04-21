@@ -16,7 +16,6 @@
 			import flash.net.NetConnection;
 			import flash.net.NetStream;
 			
-
 			import mx.controls.Alert;
 
 
@@ -24,6 +23,7 @@
 			private var ns:NetStream;
 			private var cam:Camera;
 			private var mic:Microphone;
+			private var vi:Video=new Video;
 
 			private function init():void
 			{
@@ -47,7 +47,22 @@
 					nc.connect(Statics.streamServer(ti.text));
 				}
 			}
-
+			
+			private function stopHandler(event:MouseEvent):void
+			{
+				ns.close();
+				vi.attachCamera(null);
+				videoDisplay.removeChild(vi);
+				
+				cam = null;
+				mic = null;
+				vi.clear();
+				
+				ns.attachCamera(null);
+				ns.attachAudio(null);
+				
+			}
+			
 			private function connectServerHander(evt:NetStatusEvent):void
 			{
 				//Alert.show("evt.info.code="+evt.info.code);//NetConnection.Connect.Success
@@ -64,6 +79,7 @@
 						cam.setMotionLevel(0, 20000);
 						cam.setKeyFrameInterval(1); //1~48，1表示每一帧都是关键帧
 						
+						Test.t(mic.activityLevel);
 						mic.setUseEchoSuppression(false); //回声
 						mic.setLoopBack(true); //传送至本地扬声器 true
 						mic.setSilenceLevel(0, 2000); // 0~100，100完全停止麦克风检测静音，从而不发送activity 事件，0则细微的声音也会捕获； 0~2000毫秒，判断声音停止时间。
@@ -72,20 +88,18 @@
 						
 						
 						
-						
-						//trace("camera size："+cam.width+"x"+cam.height);//default 160*120
-
 						ns=new NetStream(nc);
 						ns.addEventListener(NetStatusEvent.NET_STATUS, connectServerHander);
 						ns.attachCamera(cam);
 						ns.attachAudio(mic);
 
-						ns.publish(Statics.streamNAME);
+						ns.publish(Statics.streamNAME, "record");
 
-						var vi:Video=new Video();
+						
 						vi.width=Statics.clientWidth;
 						vi.height=Statics.clientHeight;
 						vi.attachCamera(cam);
+						//vi.attachNetStream(ns);
 						videoDisplay.addChild(vi);
 
 						publishBtn.mouseEnabled=false;
@@ -133,6 +147,10 @@
 		<s:Button id="publishBtn"
 				  label="publish"
 				  click="publishHandler(event)"/>
+		
+		<s:Button id="stopBtn"
+				  label="stop"
+				  click="stopHandler(event)"/>
 
 		<s:VideoDisplay id="videoDisplay"/>
 		
