@@ -18,5 +18,11 @@ package
 			trace("cuepoint: time=" + info.time + " name=" + info.name + " type=" + info.type);
 			Test.t("cuepoint: time=" + info.time + " name=" + info.name + " type=" + info.type);
 		}
+		
+		public function onPlayStatus(info:Object):void
+		{
+			Test.t("cuepoint: time=" + info.time + " name=" + info.name + " type=" + info.type);
+		}
+		
 	}
 }
