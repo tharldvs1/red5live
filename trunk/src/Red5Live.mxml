@@ -50,6 +50,8 @@
 			
 			private function stopHandler(event:MouseEvent):void
 			{
+				event.target.mouseEnabled=false;
+				
 				ns.close();
 				vi.attachCamera(null);
 				videoDisplay.removeChild(vi);
@@ -79,7 +81,7 @@
 						cam.setMotionLevel(0, 20000);
 						cam.setKeyFrameInterval(1); //1~48，1表示每一帧都是关键帧
 						
-						Test.t(mic.activityLevel);
+						//Test.t(mic.activityLevel);
 						mic.setUseEchoSuppression(false); //回声
 						mic.setLoopBack(true); //传送至本地扬声器 true
 						mic.setSilenceLevel(0, 2000); // 0~100，100完全停止麦克风检测静音，从而不发送activity 事件，0则细微的声音也会捕获； 0~2000毫秒，判断声音停止时间。
