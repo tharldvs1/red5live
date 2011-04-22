@@ -23,7 +23,7 @@
 			import flash.media.Video;
 			import flash.net.*;
 			import flash.utils.*;
-
+			
 			import mx.controls.Alert;
 			import mx.core.IVisualElement;
 
@@ -64,7 +64,10 @@
 				if (evt.info.code == "NetConnection.Connect.Success")
 				{
 					ns=new NetStream(nc);
-					ns.client=new CustomClient;
+					ns.client=new CustomClient();
+					
+					ns.bufferTime = 3;
+					
 					ns.addEventListener(NetStatusEvent.NET_STATUS, connectHandler);
 
 					video=new Video();
