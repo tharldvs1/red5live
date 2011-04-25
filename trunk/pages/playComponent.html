@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-<title>publish</title>
+<title>playComponent</title>
 
 </head>
 <body style="background-color:#cce8cf;">
@@ -26,12 +26,12 @@ params.bgcolor = "#ffffff";
 params.allowscriptaccess = "always";
 params.allowfullscreen = "true";
 var attributes = {};
-attributes.id = "publishID";//swf id
-attributes.name = "publishNAME";//swf name
+attributes.id = "playComponentID";//swf id
+attributes.name = "playComponentNAME";//swf name
 attributes.align = "middle";
 var rand_date = new Date();
 var rand_time = rand_date.getTime();
-swfobject.embedSWF("../bin-debug/Red5Live.swf?"+rand_time, "flashContent", "400", "500", swfVersionStr, xiSwfUrlStr, flashvars, params, attributes);
+swfobject.embedSWF("../bin-debug/playComponent.swf?"+rand_time, "flashContent", "400", "300", swfVersionStr, xiSwfUrlStr, flashvars, params, attributes);
 <!-- JavaScript enabled so display the flashContent div in case it is not replaced with a swf object. -->
 swfobject.createCSS("#flashContent", "display:block;text-align:left;");
 </script>

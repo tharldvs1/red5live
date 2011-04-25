@@ -11,20 +11,34 @@ package
 		public static const clientWidth:int = 400;
 		public static const clientHeight:int = 300;
 		
+		private static var conn:LocalConnection = new LocalConnection;
+		
+		//private static var date:Date = new Date();
+		
 		
 		public static function get serverIP():String
 		{
-			var conn:LocalConnection = new LocalConnection;
 			return conn.domain;
 		}
 		public static const serverNAME:String = "oflaDemo";
 		public static const streamNAME:String = "red5Live";
 		public static function streamServer(_ip:String):String
 		{
-			//rtmp://172.20.204.50/oflaDemo
-			//red5Live
 			return "rtmp://" + _ip + "/" + serverNAME;
 		}
+		public static function streamServerPlay():String
+		{
+			return "rtmp://" + conn.domain + "/" + serverNAME;
+		}
+		
+		/*
+		public static function getDate():String //创建文件夹，保存视频(弃了，publish改用append参数)
+		{
+			var _date:String = date.getFullYear().toString() + (((date.getMonth()+1)<9)?("0"+(date.getMonth()+1)):(date.getMonth()+1)).toString() + ((date.getDate()<9)?("0"+date.getDate()):date.getDate());
+			var _time:String = ((date.getHours()<9)?("0"+date.getHours()):date.getHours()).toString() + ((date.getMinutes()<9)?("0"+date.getMinutes()):date.getMinutes()).toString() + ((date.getSeconds()<9)?("0"+date.getSeconds()):date.getSeconds());
+			return _date+_time;
+		}
+		*/
 		
 		/**
 		 * 
@@ -42,6 +56,9 @@ package
 		 * http://test1.myyule.com.cn:8082/Red5Live/pages/play.html
 		 * http://test1.myyule.com.cn:8082/Red5Live/pages/replay.html
 		 *
+		 * 
+		 * 13:29 - 17:11, 1.01 GB
+		 * 
 		 */ 
 		
 		
