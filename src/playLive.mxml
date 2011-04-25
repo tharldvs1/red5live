@@ -20,7 +20,7 @@
 			import flash.media.Video;
 			import flash.net.*;
 			import flash.utils.*;
-
+			
 			import mx.controls.Alert;
 			import mx.core.IVisualElement;
 
@@ -66,6 +66,10 @@
 
 				if (evt.info.code == "NetConnection.Connect.Success")
 				{
+					
+					
+					switchPlay(0);
+					
 					ns=new NetStream(nc);
 
 					//ns.client = new CustomClient;
@@ -84,6 +88,14 @@
 					ns.play(Statics.streamNAME);
 
 						//playBtn.mouseEnabled=false;
+				}
+				else if(evt.info.code == "NetConnection.Connect.Failed")
+				{
+					//连接失败，播放http内容
+					
+					
+					switchPlay(1);
+					
 				}
 				else if (evt.info.code == "NetStream.Play.UnpublishNotify") //发布取消
 				{
@@ -114,7 +126,8 @@
 				//Test.t(data.duration);
 				//trace("metadata: duration=" + data.duration + " width=" + data.width + " height=" + data.height + " framerate=" + data.framerate);
 
-				stopHandler();
+				//stopHandler();
+				switchPlay(1);
 			}
 
 
@@ -125,6 +138,32 @@
 				videoDisplay.removeChild(video);
 				Alert.show("直播暂停，请刷新后重试");
 			}
+			
+			
+			private function switchPlay(_no:int):void //0:live，1:http
+			{
+				if(_no == 0)
+				{
+					liveComponent.visible = true;
+					playComponent.visible = false;
+					playComponent.source = null;
+				}
+				else if(_no == 1)
+				{
+					//stopHandler();
+					liveComponent.visible = false;
+					
+					playComponent.visible = true;
+					//playComponent.source = "http://test1.myyule.com.cn:8082/streams/watchmen.flv";
+					playComponent.source = "../pages/watchmen.flv";
+					playComponent.play();
+				}
+			}
+			
+			
+			
+			
+			
 		]]>
 	</fx:Script>
 
@@ -144,7 +183,7 @@
 	<s:VideoPlayer id="playComponent"
 				   width="400"
 				   height="300"
-				   visible="false"/>
+				   visible="false" autoPlay="true"/>
 
 
 	<!--
