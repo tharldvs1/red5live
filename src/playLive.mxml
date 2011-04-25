@@ -2,8 +2,8 @@
 <s:Application xmlns:fx="http://ns.adobe.com/mxml/2009"
 			   xmlns:s="library://ns.adobe.com/flex/spark"
 			   xmlns:mx="library://ns.adobe.com/flex/mx"
-			   minWidth="800"
-			   minHeight="700"
+			   minWidth="400"
+			   minHeight="320"
 			   applicationComplete="init()">
 	<s:layout>
 		<s:BasicLayout/>
@@ -20,89 +20,143 @@
 			import flash.media.Video;
 			import flash.net.*;
 			import flash.utils.*;
-			
+
 			import mx.controls.Alert;
 			import mx.core.IVisualElement;
 
 			private var nc:NetConnection;
+			private var ns:NetStream;
+			private var video:Video;
 
 			private function init():void
 			{
-				ti.text = Statics.serverIP;
+				//ti.text = Statics.serverIP;
+				nc=new NetConnection();
+				nc.addEventListener(NetStatusEvent.NET_STATUS, connectHandler);
+				nc.client=this;
+				nc.connect(Statics.streamServerPlay());
 			}
 
-
-			private function playHandler(event:MouseEvent):void
-			{
-				if (ti.text == null || ti.text == "")
-				{
-					Alert.show("先填入服务器地址");
-				}
-				else
-				{
-					nc=new NetConnection();
-					nc.addEventListener(NetStatusEvent.NET_STATUS, connectHandler);
-					nc.client=this;
-					nc.connect(Statics.streamServer(ti.text));
-				}
-			}
-
+			/*
+			   private function playHandler(event:MouseEvent):void
+			   {
+			   if (ti.text == null || ti.text == "")
+			   {
+			   Alert.show("先填入服务器地址");
+			   }
+			   else
+			   {
+			   nc=new NetConnection();
+			   nc.addEventListener(NetStatusEvent.NET_STATUS, connectHandler);
+			   nc.client=this;
+			   nc.connect(Statics.streamServer(ti.text));
+			   }
+			   }
+			 */
 
 			private function connectHandler(evt:NetStatusEvent):void
 			{
-				
+
 				/**
-				 * NetStream.Play.UnpublishNotify  流取消
-				 * 
-				 */ 
-				
+				 * NetStream.Play.UnpublishNotify  发布取消
+				 *
+				 */
+
 				Test.t(evt.info.code);
-				
+
 				if (evt.info.code == "NetConnection.Connect.Success")
 				{
-					var ns:NetStream=new NetStream(nc);
-					ns.client = new CustomClient;
+					ns=new NetStream(nc);
+
+					//ns.client = new CustomClient;
+					var _client:Object=new Object();
+					_client.onMetaData=onMetaData;
+					ns.client=_client;
+
 					ns.addEventListener(NetStatusEvent.NET_STATUS, connectHandler);
-					
-					var video:Video=new Video();
+
+					video=new Video();
 					video.width=Statics.clientWidth;
 					video.height=Statics.clientHeight;
 					video.attachNetStream(ns);
 					videoDisplay.addChild(video);
-					
+
 					ns.play(Statics.streamNAME);
 
-					playBtn.mouseEnabled=false;
-					
+						//playBtn.mouseEnabled=false;
+				}
+				else if (evt.info.code == "NetStream.Play.UnpublishNotify") //发布取消
+				{
+					//stopHandler();
+					alertText.visible=true;
+				}
+				else if (evt.info.code == "NetStream.Play.PublishNotify") //发布恢复
+				{
+					alertText.visible=false;
 				}
 				else
 				{
-					
-					//Alert.show("服务器连接失败");
 					//Test.t(evt.info.code);
 				}
-				
-				
+
+
 
 			}
 
 			public function onBWDone():void
 			{
+			}
 
+
+
+			private function onMetaData(data:Object):void
+			{
+				//Test.t(data.duration);
+				//trace("metadata: duration=" + data.duration + " width=" + data.width + " height=" + data.height + " framerate=" + data.framerate);
+
+				stopHandler();
+			}
+
+
+			private function stopHandler():void
+			{
+				ns.close();
+				video.attachNetStream(null);
+				videoDisplay.removeChild(video);
+				Alert.show("直播暂停，请刷新后重试");
 			}
 		]]>
 	</fx:Script>
 
+	<s:VGroup id="liveComponent">
+		<s:Group height="300">
+			<s:VideoDisplay id="videoDisplay"/>
+		</s:Group>
 
-	<s:VGroup>
-		<s:Label text="先填入服务器地址" />
-		<s:TextInput id="ti"
-					 width="200"
-					 text=""/>
-		<s:Button id="playBtn"
-				  label="play"
-				  click="playHandler(event)"/>
-		<s:VideoDisplay id="videoDisplay" />
+		<s:Label id="alertText"
+				 height="20"
+				 text="请耐心等待或稍后刷新页面"
+				 visible="false"
+				 y="300"
+				 fontSize="12"/>
 	</s:VGroup>
+
+	<s:VideoPlayer id="playComponent"
+				   width="400"
+				   height="300"
+				   visible="false"/>
+
+
+	<!--
+		 <s:VGroup>
+		 <s:Label text="先填入服务器地址" visible="false" />
+		 <s:TextInput id="ti"
+		 width="200"
+		 text="" visible="false"/>
+		 <s:Button id="playBtn"
+		 label="play"
+		 click="playHandler(event)"/>
+		 </s:VGroup>
+	-->
 
 </s:Application>

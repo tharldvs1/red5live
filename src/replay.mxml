@@ -76,7 +76,7 @@
 					video.attachNetStream(ns);
 					videoDisplay.addChild(video);
 
-					ns.play(Statics.streamNAME + ".flv");
+					ns.play(Statics.streamNAME);
 
 					replayBtn.mouseEnabled=false;
 

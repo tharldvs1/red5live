@@ -2,8 +2,8 @@
 <s:Application xmlns:fx="http://ns.adobe.com/mxml/2009"
 			   xmlns:s="library://ns.adobe.com/flex/spark"
 			   xmlns:mx="library://ns.adobe.com/flex/mx"
-			   minWidth="800"
-			   minHeight="700"
+			   minWidth="400"
+			   minHeight="500"
 			   applicationComplete="init()">
 	<fx:Declarations>
 		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
@@ -87,17 +87,14 @@
 						mic.setSilenceLevel(0, 2000); // 0~100，100完全停止麦克风检测静音，从而不发送activity 事件，0则细微的声音也会捕获； 0~2000毫秒，判断声音停止时间。
 						mic.gain=100; //麦克风放大信号的程度。有效值为 0 到 100。默认值为 50。
 						
-						
-						
-						
 						ns=new NetStream(nc);
 						ns.addEventListener(NetStatusEvent.NET_STATUS, connectServerHander);
 						ns.attachCamera(cam);
 						ns.attachAudio(mic);
 
 						ns.publish(Statics.streamNAME, "record");
+						//ns.publish(Statics.streamNAME, "append");
 
-						
 						vi.width=Statics.clientWidth;
 						vi.height=Statics.clientHeight;
 						vi.attachCamera(cam);
@@ -119,6 +116,10 @@
 				else if(evt.info.code == "NetConnection.Connect.Closed")
 				{
 					Alert.show("关闭连接！");
+				}
+				else if(evt.info.code == "NetStream.Record.NoAccess")
+				{
+					Alert.show("流仍在播放！");
 				}
 				else
 				{
