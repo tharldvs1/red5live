@@ -28,6 +28,9 @@
 			private function init():void
 			{
 				ti.text = Statics.serverIP;
+				ti.enabled = false;
+				
+				stopBtn.mouseEnabled = false;
 				
 				nc=new NetConnection();
 				nc.addEventListener(NetStatusEvent.NET_STATUS, connectServerHander);
@@ -38,14 +41,7 @@
 
 			private function publishHandler(event:MouseEvent):void
 			{
-				if (ti.text == null || ti.text == "")
-				{
-					Alert.show("先填入服务器地址");
-				}
-				else
-				{
-					nc.connect(Statics.streamServer(ti.text));
-				}
+				nc.connect(Statics.streamServerPath());
 			}
 			
 			private function stopHandler(event:MouseEvent):void
@@ -63,12 +59,16 @@
 				ns.attachCamera(null);
 				ns.attachAudio(null);
 				
+				nc.close();
+				
+				publishBtn.mouseEnabled=true;
+				stopBtn.mouseEnabled = false;
 			}
 			
 			private function connectServerHander(evt:NetStatusEvent):void
 			{
-				//Alert.show("evt.info.code="+evt.info.code);//NetConnection.Connect.Success
-
+				//Test.t(evt.info.code);
+				
 				if (evt.info.code == "NetConnection.Connect.Success")
 				{
 					cam=Camera.getCamera();
@@ -84,7 +84,7 @@
 						//Test.t(mic.activityLevel);
 						mic.setUseEchoSuppression(false); //回声
 						mic.setLoopBack(true); //传送至本地扬声器 true
-						mic.setSilenceLevel(0, 2000); // 0~100，100完全停止麦克风检测静音，从而不发送activity 事件，0则细微的声音也会捕获； 0~2000毫秒，判断声音停止时间。
+						mic.setSilenceLevel(50, 2000); // 0~100，100完全停止麦克风检测静音，从而不发送activity 事件，0则细微的声音也会捕获； 0~2000毫秒，判断声音停止时间。
 						mic.gain=100; //麦克风放大信号的程度。有效值为 0 到 100。默认值为 50。
 						
 						ns=new NetStream(nc);
@@ -102,20 +102,18 @@
 						videoDisplay.addChild(vi);
 
 						publishBtn.mouseEnabled=false;
-
+						stopBtn.mouseEnabled = true;
+						
 					}
 					else
 					{
 						Alert.show("未检测到视频音频设备或该设备被占用！");
 					}
+					
 				}
 				else if(evt.info.code == "NetStream.Publish.BadName")
 				{
 					Alert.show("视频已发布！");
-				}
-				else if(evt.info.code == "NetConnection.Connect.Closed")
-				{
-					Alert.show("关闭连接！");
 				}
 				else if(evt.info.code == "NetStream.Record.NoAccess")
 				{
@@ -123,7 +121,6 @@
 				}
 				else
 				{
-					//Alert.show("evt.info.code="+evt.info.code);
 					Test.t(evt.info.code);
 				}
 			}
@@ -138,11 +135,18 @@
 			{
 
 			}
+			
+
+			
+			
+			
+			
+			
 		]]>
 	</fx:Script>
 
 	<s:VGroup>
-		<s:Label text="先填入服务器地址"/>
+		<s:Label text="流媒体服务器地址"/>
 		<s:TextInput id="ti"
 					 width="200"
 					 text=""/>

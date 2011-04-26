@@ -20,39 +20,35 @@
 			import flash.media.Video;
 			import flash.net.*;
 			import flash.utils.*;
-			
+
 			import mx.controls.Alert;
-			import mx.core.IVisualElement;
+
+			import org.osmf.events.TimeEvent;
+
+			import spark.components.VideoDisplay;
+			import spark.components.VideoPlayer;
 
 			private var nc:NetConnection;
 			private var ns:NetStream;
 			private var video:Video;
 
+			private var videoDisplay:VideoDisplay=new VideoDisplay(); //live
+			private var videoPlayer:VideoPlayer=new VideoPlayer(); //http
+			private var timer:Timer=new Timer(2000); //nc连成功后
+			private var connectTimer:Timer=new Timer(5000); //轮询
+
 			private function init():void
 			{
-				//ti.text = Statics.serverIP;
 				nc=new NetConnection();
 				nc.addEventListener(NetStatusEvent.NET_STATUS, connectHandler);
 				nc.client=this;
-				nc.connect(Statics.streamServerPlay());
+				nc.connect(Statics.streamServerPath());
+
+				timer.addEventListener(TimerEvent.TIMER, timerHandler);
+				connectTimer.addEventListener(TimerEvent.TIMER, connectTimerHandler);
 			}
 
-			/*
-			   private function playHandler(event:MouseEvent):void
-			   {
-			   if (ti.text == null || ti.text == "")
-			   {
-			   Alert.show("先填入服务器地址");
-			   }
-			   else
-			   {
-			   nc=new NetConnection();
-			   nc.addEventListener(NetStatusEvent.NET_STATUS, connectHandler);
-			   nc.client=this;
-			   nc.connect(Statics.streamServer(ti.text));
-			   }
-			   }
-			 */
+
 
 			private function connectHandler(evt:NetStatusEvent):void
 			{
@@ -62,17 +58,12 @@
 				 *
 				 */
 
-				Test.t(evt.info.code);
+				//Test.t(evt.info.code);
 
 				if (evt.info.code == "NetConnection.Connect.Success")
 				{
-					
-					
-					switchPlay(0);
-					
 					ns=new NetStream(nc);
 
-					//ns.client = new CustomClient;
 					var _client:Object=new Object();
 					_client.onMetaData=onMetaData;
 					ns.client=_client;
@@ -84,22 +75,19 @@
 					video.height=Statics.clientHeight;
 					video.attachNetStream(ns);
 					videoDisplay.addChild(video);
+					ns.play(Statics.streamNAME, -2); //-2：先实时后录制，-1：实时
 
-					ns.play(Statics.streamNAME);
+					timer.start();
 
-						//playBtn.mouseEnabled=false;
+
 				}
-				else if(evt.info.code == "NetConnection.Connect.Failed")
+				else if (evt.info.code == "NetConnection.Connect.Failed")
 				{
 					//连接失败，播放http内容
-					
-					
 					switchPlay(1);
-					
 				}
 				else if (evt.info.code == "NetStream.Play.UnpublishNotify") //发布取消
 				{
-					//stopHandler();
 					alertText.visible=true;
 				}
 				else if (evt.info.code == "NetStream.Play.PublishNotify") //发布恢复
@@ -108,12 +96,21 @@
 				}
 				else
 				{
-					//Test.t(evt.info.code);
+					Test.t(evt.info.code);
 				}
-
-
-
 			}
+
+			private function timerHandler(event:TimerEvent):void
+			{
+				timer.stop();
+				switchPlay(0);
+			}
+
+			private function connectTimerHandler(event:TimerEvent):void
+			{
+				nc.connect(Statics.streamServerPath());
+			}
+
 
 			public function onBWDone():void
 			{
@@ -123,10 +120,9 @@
 
 			private function onMetaData(data:Object):void
 			{
-				//Test.t(data.duration);
 				//trace("metadata: duration=" + data.duration + " width=" + data.width + " height=" + data.height + " framerate=" + data.framerate);
-
-				//stopHandler();
+				timer.stop();
+				stopHandler();
 				switchPlay(1);
 			}
 
@@ -136,29 +132,62 @@
 				ns.close();
 				video.attachNetStream(null);
 				videoDisplay.removeChild(video);
-				Alert.show("直播暂停，请刷新后重试");
+				//Alert.show("直播暂停，请刷新后重试");
 			}
-			
-			
+
+
 			private function switchPlay(_no:int):void //0:live，1:http
 			{
-				if(_no == 0)
+				if (mainContainer.numElements > 0)
 				{
-					liveComponent.visible = true;
-					playComponent.visible = false;
-					playComponent.source = null;
+					if (mainContainer.getElementAt(0) is VideoPlayer && _no == 0)
+					{
+						for (var i:int=mainContainer.numElements - 1; i > -1; i--)
+						{
+							mainContainer.removeElementAt(i);
+						}
+						
+						if (_no == 0)
+						{
+							alertText.visible=false;
+							
+							mainContainer.addElement(videoDisplay);
+							
+							connectTimer.stop();
+						}
+					}
+					else
+					{
+					}
 				}
-				else if(_no == 1)
+				else
 				{
-					//stopHandler();
-					liveComponent.visible = false;
-					
-					playComponent.visible = true;
-					//playComponent.source = "http://test1.myyule.com.cn:8082/streams/watchmen.flv";
-					playComponent.source = "../pages/watchmen.flv";
-					playComponent.play();
+					if (_no == 0)
+					{
+						alertText.visible=false;
+
+						mainContainer.addElement(videoDisplay);
+
+						connectTimer.stop();
+					}
+					else if (_no == 1)
+					{
+						alertText.visible=true;
+
+						mainContainer.addElement(videoPlayer);
+						videoPlayer.width=400;
+						videoPlayer.height=300;
+						videoPlayer.autoPlay=true;
+						videoPlayer.loop=true;
+						videoPlayer.source=Statics.defaultVideoPath;
+
+						connectTimer.start();
+					}
 				}
+
 			}
+			
+			
 			
 			
 			
@@ -167,35 +196,13 @@
 		]]>
 	</fx:Script>
 
-	<s:VGroup id="liveComponent">
-		<s:Group height="300">
-			<s:VideoDisplay id="videoDisplay"/>
-		</s:Group>
 
+	<s:Group id="mainContainer"/>
+	<s:Group y="306">
 		<s:Label id="alertText"
-				 height="20"
-				 text="请耐心等待或稍后刷新页面"
-				 visible="false"
-				 y="300"
-				 fontSize="12"/>
-	</s:VGroup>
-
-	<s:VideoPlayer id="playComponent"
-				   width="400"
-				   height="300"
-				   visible="false" autoPlay="true"/>
+				 text="请耐心等待或稍后刷新页面"/>
+	</s:Group>
 
 
-	<!--
-		 <s:VGroup>
-		 <s:Label text="先填入服务器地址" visible="false" />
-		 <s:TextInput id="ti"
-		 width="200"
-		 text="" visible="false"/>
-		 <s:Button id="playBtn"
-		 label="play"
-		 click="playHandler(event)"/>
-		 </s:VGroup>
-	-->
 
 </s:Application>
