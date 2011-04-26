@@ -15,9 +15,6 @@
   <applications>
     <application path="Red5Live.mxml"/>
     <application path="playLive.mxml"/>
-    <application path="CamTest.mxml"/>
-    <application path="replay.mxml"/>
-    <application path="playComponent.mxml"/>
   </applications>
   <modules/>
   <buildCSSFiles/>

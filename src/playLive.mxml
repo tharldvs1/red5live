@@ -108,6 +108,7 @@
 
 			private function connectTimerHandler(event:TimerEvent):void
 			{
+				Test.t(5);
 				nc.connect(Statics.streamServerPath());
 			}
 
