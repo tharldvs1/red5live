@@ -157,8 +157,26 @@
 							connectTimer.stop();
 						}
 					}
-					else
+					else if(mainContainer.getElementAt(0) is VideoDisplay && _no == 1)
 					{
+						for (var j:int=mainContainer.numElements - 1; j > -1; j--)
+						{
+							mainContainer.removeElementAt(j);
+						}
+						
+						if (_no == 1)
+						{
+							alertText.visible=true;
+							
+							mainContainer.addElement(videoPlayer);
+							videoPlayer.width=400;
+							videoPlayer.height=300;
+							videoPlayer.autoPlay=true;
+							videoPlayer.loop=true;
+							videoPlayer.source=Statics.defaultVideoPath;
+							
+							connectTimer.start();
+						}
 					}
 				}
 				else
