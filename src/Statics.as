@@ -22,11 +22,11 @@ package
 		}
 		public static const serverNAME:String = "oflaDemo";
 		public static const streamNAME:String = "red5Live";
-		public static function streamServer(_ip:String):String
+		public static function streamServer(_ip:String):String //测试用
 		{
 			return "rtmp://" + _ip + "/" + serverNAME;
 		}
-		public static function streamServerPlay():String
+		public static function streamServerPath():String
 		{
 			return "rtmp://" + conn.domain + "/" + serverNAME;
 		}
@@ -40,21 +40,27 @@ package
 		}
 		*/
 		
+		
+		public static const defaultVideoPath:String = "../pages/DarkKnight.flv";//直播前默认视频
+		
+		
+		
+		
+		
+		
 		/**
 		 * 
 		 * 212:
 		 * http://172.20.207.212:8080/Red5Live/pages/publish.html
 		 * http://172.20.207.212:8080/Red5Live/pages/play.html
 		 * 
-		 * 本地：
-		 * http://172.20.204.50:5080/oflaDemo/Red5Live/pages/publish.html
-		 * http://172.20.204.50:5080/oflaDemo/Red5Live/pages/play.html
-		 * http://172.20.204.50:5080/oflaDemo/Red5Live/pages/replay.html
+		 * 本地 172.20.204.50：
+		 * http://localhost:5080/oflaDemo/Red5Live/pages/publish.html
+		 * http://localhost:5080/oflaDemo/Red5Live/pages/play.html
 		 * 
 		 * 60.195.252.20:
 		 * http://test1.myyule.com.cn:8082/Red5Live/pages/publish.html
 		 * http://test1.myyule.com.cn:8082/Red5Live/pages/play.html
-		 * http://test1.myyule.com.cn:8082/Red5Live/pages/replay.html
 		 *
 		 * 
 		 * 13:29 - 17:11, 1.01 GB
