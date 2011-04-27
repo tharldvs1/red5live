@@ -3,7 +3,7 @@
 			   xmlns:s="library://ns.adobe.com/flex/spark"
 			   xmlns:mx="library://ns.adobe.com/flex/mx"
 			   minWidth="400"
-			   minHeight="500"
+			   minHeight="410"
 			   applicationComplete="init()">
 	<fx:Declarations>
 		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
@@ -110,6 +110,10 @@
 						Alert.show("未检测到视频音频设备或该设备被占用！");
 					}
 					
+				}
+				else if(evt.info.code == "NetConnection.Connect.Failed")
+				{
+					Alert.show("连接服务器失败");
 				}
 				else if(evt.info.code == "NetStream.Publish.BadName")
 				{
