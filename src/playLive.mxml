@@ -20,11 +20,14 @@
 			import flash.media.Video;
 			import flash.net.*;
 			import flash.utils.*;
-
+			
 			import mx.controls.Alert;
-
+			import mx.events.ResizeEvent;
+			
+			import org.osmf.events.LoadEvent;
+			import org.osmf.events.MediaPlayerStateChangeEvent;
 			import org.osmf.events.TimeEvent;
-
+			
 			import spark.components.VideoDisplay;
 			import spark.components.VideoPlayer;
 
@@ -36,11 +39,14 @@
 			private var videoPlayer:VideoPlayer=new VideoPlayer(); //http
 			private var timer:Timer=new Timer(2000); //nc连成功后
 			private var connectTimer:Timer=new Timer(5000); //轮询
+			private var fullScreen:Boolean = false;
 
 			private function init():void
 			{
 				nc=new NetConnection();
 				nc.addEventListener(NetStatusEvent.NET_STATUS, connectHandler);
+				nc.addEventListener(AsyncErrorEvent.ASYNC_ERROR, asyncHandler);
+				nc.addEventListener(IOErrorEvent.IO_ERROR, IOErrorHandler);
 				nc.client=this;
 				nc.connect(Statics.streamServerPath());
 
@@ -58,7 +64,7 @@
 				 *
 				 */
 
-				//Test.t(evt.info.code);
+				Test.t(evt.info.code);
 
 				if (evt.info.code == "NetConnection.Connect.Success")
 				{
@@ -69,6 +75,8 @@
 					ns.client=_client;
 
 					ns.addEventListener(NetStatusEvent.NET_STATUS, connectHandler);
+					ns.addEventListener(IOErrorEvent.IO_ERROR, IOErrorHandler);
+					ns.addEventListener(AsyncErrorEvent.ASYNC_ERROR, asyncHandler);
 
 					video=new Video();
 					video.width=Statics.clientWidth;
@@ -94,21 +102,32 @@
 				{
 					alertText.visible=false;
 				}
+				else if(evt.info.code == "NetStream.Play.InsufficientBW")
+				{
+					alertText.visible=true;
+					Test.t("带宽不足无法正常播放");
+				}
 				else
 				{
-					Test.t(evt.info.code);
+					//Test.t(evt.info.code);
 				}
 			}
 
 			private function timerHandler(event:TimerEvent):void
 			{
 				timer.stop();
-				switchPlay(0);
+				if(video.videoWidth == 0) //无flv，无直播流
+				{
+					switchPlay(1);
+				}
+				else //无flv，有直播流
+				{
+					switchPlay(0);
+				}
 			}
 
 			private function connectTimerHandler(event:TimerEvent):void
 			{
-				Test.t(5);
 				nc.connect(Statics.streamServerPath());
 			}
 
@@ -118,6 +137,20 @@
 			}
 
 
+			
+			
+			private function IOErrorHandler(event:IOErrorEvent):void
+			{
+				Test.t("IOErrorEvent : "+event);
+			}
+			private function asyncHandler(event:AsyncErrorEvent):void
+			{
+				Test.t("AsyncErrorEvent : "+event);
+			}
+			
+			
+			
+			
 
 			private function onMetaData(data:Object):void
 			{
@@ -143,73 +176,85 @@
 				{
 					if (mainContainer.getElementAt(0) is VideoPlayer && _no == 0)
 					{
-						for (var i:int=mainContainer.numElements - 1; i > -1; i--)
-						{
-							mainContainer.removeElementAt(i);
-						}
-						
-						if (_no == 0)
-						{
-							alertText.visible=false;
-							
-							mainContainer.addElement(videoDisplay);
-							
-							connectTimer.stop();
-						}
+						CleanContainer.clean(mainContainer);
+						doSwitchPlay(_no);
 					}
-					else if(mainContainer.getElementAt(0) is VideoDisplay && _no == 1)
+					else if (mainContainer.getElementAt(0) is VideoDisplay && _no == 1)
 					{
-						for (var j:int=mainContainer.numElements - 1; j > -1; j--)
-						{
-							mainContainer.removeElementAt(j);
-						}
-						
-						if (_no == 1)
-						{
-							alertText.visible=true;
-							
-							mainContainer.addElement(videoPlayer);
-							videoPlayer.width=400;
-							videoPlayer.height=300;
-							videoPlayer.autoPlay=true;
-							videoPlayer.loop=true;
-							videoPlayer.source=Statics.defaultVideoPath;
-							
-							connectTimer.start();
-						}
+						CleanContainer.clean(mainContainer);
+						doSwitchPlay(_no);
+					}
+					else
+					{
+						//Test.t("啥也不做");
 					}
 				}
 				else
 				{
-					if (_no == 0)
-					{
-						alertText.visible=false;
-
-						mainContainer.addElement(videoDisplay);
-
-						connectTimer.stop();
-					}
-					else if (_no == 1)
-					{
-						alertText.visible=true;
-
-						mainContainer.addElement(videoPlayer);
-						videoPlayer.width=400;
-						videoPlayer.height=300;
-						videoPlayer.autoPlay=true;
-						videoPlayer.loop=true;
-						videoPlayer.source=Statics.defaultVideoPath;
-
-						connectTimer.start();
-					}
+					//if(VideoPlayer不是全屏)，是全屏什么也不做
+					if(!fullScreen)doSwitchPlay(_no);
 				}
 
+			}
+			private function doSwitchPlay(_no:int):void //只供switchPlay调用
+			{
+				if (_no == 0)
+				{
+					alertText.visible=false;
+					
+					mainContainer.addElement(videoDisplay);
+					
+					connectTimer.stop();
+				}
+				else if (_no == 1)
+				{
+					alertText.visible=true;
+					
+					mainContainer.addElement(videoPlayer);
+					videoPlayer.width=Statics.clientWidth;
+					videoPlayer.height=Statics.clientHeight;
+					videoPlayer.autoPlay=true;
+					videoPlayer.loop=true;
+					videoPlayer.source=Statics.defaultVideoPath;
+					videoPlayer.addEventListener(MediaPlayerStateChangeEvent.MEDIA_PLAYER_STATE_CHANGE, videoPlayerStateHandler);
+					videoPlayer.addEventListener(LoadEvent.BYTES_LOADED_CHANGE, videoPlayerLoadedHandler);
+					videoPlayer.addEventListener(TimeEvent.CURRENT_TIME_CHANGE, videoPlayerTimeHandler);
+					videoPlayer.addEventListener(TimeEvent.DURATION_CHANGE, videoPlayerTimeHandler);
+					videoPlayer.addEventListener(ResizeEvent.RESIZE, resizeHandler);
+					
+					connectTimer.start();
+				}
 			}
 			
 			
 			
-			
-			
+			private function videoPlayerStateHandler(event:MediaPlayerStateChangeEvent):void
+			{
+				//Test.t("MEDIA_PLAYER_STATE_CHANGE : "+event.state);
+			}
+			private function videoPlayerLoadedHandler(event:LoadEvent):void
+			{
+				//Test.t("BYTES_LOADED_CHANGE : "+event.bytes);
+			}
+			private function videoPlayerTimeHandler(event:TimeEvent):void
+			{
+				//Test.t("TimeEvent : "+event);
+			}
+			private function resizeHandler(event:ResizeEvent):void
+			{
+				//Test.t("event.oldWidth = "+event.oldWidth);//之前是400，就是全屏
+				
+				if(event.oldWidth == Statics.clientWidth)
+				{
+					//现在是全屏
+					fullScreen = true;
+				}
+				else
+				{
+					fullScreen = false;
+				}
+				
+			}
 			
 			
 		]]>
