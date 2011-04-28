@@ -76,10 +76,15 @@
 					
 					if (cam != null && mic!=null)
 					{
-						cam.setMode(Statics.serverWidth, Statics.serverHeight, 30, false);
-						cam.setQuality(0, 100);
-						cam.setMotionLevel(0, 20000);
+						//要将删除的帧数降至最低（即使这意味着减小图像大小），请为 favorArea 参数传递 false。
+						cam.setMode(Statics.serverWidth, Statics.serverHeight, 8, false);
 						cam.setKeyFrameInterval(1); //1~48，1表示每一帧都是关键帧
+						
+						cam.setLoopback(false);
+						cam.setQuality(0, 85);
+						
+						cam.setMotionLevel(0, 20000);
+						
 						
 						//Test.t(mic.activityLevel);
 						mic.setUseEchoSuppression(false); //回声
