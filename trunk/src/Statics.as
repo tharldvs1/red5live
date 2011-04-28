@@ -4,9 +4,8 @@ package
 	
 	public class Statics
 	{
-		
-		public static const serverWidth:int = 150;
-		public static const serverHeight:int = 112;
+		public static const serverWidth:int = 400;
+		public static const serverHeight:int = 300;
 		
 		public static const clientWidth:int = 400;
 		public static const clientHeight:int = 300;
