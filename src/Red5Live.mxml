@@ -97,7 +97,7 @@
 
 
 						//Test.t(mic.activityLevel);
-						mic.setUseEchoSuppression(false); //回声
+						mic.setUseEchoSuppression(true); //回声
 						mic.setLoopBack(true); //传送至本地扬声器 true
 						mic.setSilenceLevel(50, 2000); // 0~100，100完全停止麦克风检测静音，从而不发送activity 事件，0则细微的声音也会捕获； 0~2000毫秒，判断声音停止时间。
 						mic.gain=100; //麦克风放大信号的程度。有效值为 0 到 100。默认值为 50。
@@ -160,32 +160,14 @@
 			}
 		]]>
 	</fx:Script>
-	<!--
-		 <s:VGroup>
-		 <s:Label text="流媒体服务器地址"/>
-		 <s:TextInput id="ti"
-		 width="200"
-		 text=""/>
 
-		 <s:Button id="publishBtn"
-		 label="publish"
-		 click="publishHandler(event)"/>
-
-		 <s:Button id="stopBtn"
-		 label="stop"
-		 click="stopHandler(event)"/>
-
-		 <s:VideoDisplay id="videoDisplay"/>
-
-		 </s:VGroup>
-	-->
 
 	<s:VideoDisplay id="videoDisplay"
 					x="200"
 					y="10"/>
 
 	<s:Panel x="100"
-			 y="310"
+			 y="320"
 			 width="600"
 			 height="150"
 			 title="直播发布">
@@ -196,7 +178,7 @@
 			<s:Label text="流媒体服务器地址"
 					 y="5"/>
 			<s:TextInput id="ti"
-						 width="100"
+						 width="150"
 						 x="120"
 						 text=""/>
 		</s:Group>
@@ -204,14 +186,14 @@
 
 
 		<s:Group width="250"
-				 x="340"
+				 x="330"
 				 y="10">
 			<s:Label text="画面品质(0~100)"
 					 y="5"/>
 			<s:TextInput id="qualityInput"
-						 width="100"
-						 x="120"
-						 text="85"/>
+						 width="150"
+						 x="100"
+						 text="85" restrict="0-9"/>
 		</s:Group>
 
 
@@ -221,21 +203,21 @@
 			<s:Label text="可用最大带宽(字节/秒)"
 					 y="5"/>
 			<s:TextInput id="bandwidthInput"
-						 width="100"
+						 width="150"
 						 x="120"
-						 text="0"/>
+						 text="0" restrict="0-9"/>
 		</s:Group>
 
 
 		<s:Group width="250"
-				 x="340"
+				 x="330"
 				 y="40">
 			<s:Label text="捕捉速率(帧/每秒)"
 					 y="5"/>
 			<s:TextInput id="fpsInput"
-						 width="100"
-						 x="120"
-						 text="8"/>
+						 width="150"
+						 x="100"
+						 text="8" restrict="0-9"/>
 		</s:Group>
 
 
