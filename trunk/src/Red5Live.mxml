@@ -2,8 +2,8 @@
 <s:Application xmlns:fx="http://ns.adobe.com/mxml/2009"
 			   xmlns:s="library://ns.adobe.com/flex/spark"
 			   xmlns:mx="library://ns.adobe.com/flex/mx"
-			   minWidth="400"
-			   minHeight="410"
+			   minWidth="800"
+			   minHeight="500"
 			   applicationComplete="init()">
 	<fx:Declarations>
 		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
@@ -15,7 +15,7 @@
 			import flash.media.Microphone;
 			import flash.net.NetConnection;
 			import flash.net.NetStream;
-			
+
 			import mx.controls.Alert;
 
 
@@ -27,11 +27,13 @@
 
 			private function init():void
 			{
-				ti.text = Statics.serverIP;
-				ti.enabled = false;
+				var cr:Copyright=new Copyright(this);
 				
-				stopBtn.mouseEnabled = false;
-				
+				ti.text=Statics.serverIP;
+				ti.enabled=false;
+
+				stopBtn.mouseEnabled=false;
+
 				nc=new NetConnection();
 				nc.addEventListener(NetStatusEvent.NET_STATUS, connectServerHander);
 				nc.addEventListener(SecurityErrorEvent.SECURITY_ERROR, securityErrorHandler);
@@ -43,55 +45,63 @@
 			{
 				nc.connect(Statics.streamServerPath());
 			}
-			
+
 			private function stopHandler(event:MouseEvent):void
 			{
 				event.target.mouseEnabled=false;
-				
+
 				ns.close();
 				vi.attachCamera(null);
 				videoDisplay.removeChild(vi);
-				
-				cam = null;
-				mic = null;
+
+				cam=null;
+				mic=null;
 				vi.clear();
-				
+
 				ns.attachCamera(null);
 				ns.attachAudio(null);
-				
+
 				nc.close();
-				
+
 				publishBtn.mouseEnabled=true;
-				stopBtn.mouseEnabled = false;
+				stopBtn.mouseEnabled=false;
+				
+				qualityInput.enabled = true;
+				bandwidthInput.enabled = true;
+				fpsInput.enabled = true;
 			}
-			
+
 			private function connectServerHander(evt:NetStatusEvent):void
 			{
 				//Test.t(evt.info.code);
-				
+
 				if (evt.info.code == "NetConnection.Connect.Success")
 				{
 					cam=Camera.getCamera();
 					mic=Microphone.getMicrophone();
-					
-					if (cam != null && mic!=null)
+
+					if (cam != null && mic != null)
 					{
+						
+						
 						//要将删除的帧数降至最低（即使这意味着减小图像大小），请为 favorArea 参数传递 false。
-						cam.setMode(Statics.serverWidth, Statics.serverHeight, 8, false);
+						//cam.setMode(Statics.serverWidth, Statics.serverHeight, 8, false);
+						cam.setMode(Statics.serverWidth, Statics.serverHeight, int(fpsInput.text), false);
 						cam.setKeyFrameInterval(1); //1~48，1表示每一帧都是关键帧
-						
+
 						cam.setLoopback(false);
-						cam.setQuality(0, 85);
-						
+						//cam.setQuality(0, 85);
+						cam.setQuality(int(bandwidthInput.text), int(qualityInput.text));
+
 						cam.setMotionLevel(0, 20000);
-						
-						
+
+
 						//Test.t(mic.activityLevel);
 						mic.setUseEchoSuppression(false); //回声
 						mic.setLoopBack(true); //传送至本地扬声器 true
 						mic.setSilenceLevel(50, 2000); // 0~100，100完全停止麦克风检测静音，从而不发送activity 事件，0则细微的声音也会捕获； 0~2000毫秒，判断声音停止时间。
 						mic.gain=100; //麦克风放大信号的程度。有效值为 0 到 100。默认值为 50。
-						
+
 						ns=new NetStream(nc);
 						ns.addEventListener(NetStatusEvent.NET_STATUS, connectServerHander);
 						ns.attachCamera(cam);
@@ -107,24 +117,28 @@
 						videoDisplay.addChild(vi);
 
 						publishBtn.mouseEnabled=false;
-						stopBtn.mouseEnabled = true;
+						stopBtn.mouseEnabled=true;
 						
+						qualityInput.enabled = false;
+						bandwidthInput.enabled = false;
+						fpsInput.enabled = false;
+
 					}
 					else
 					{
 						Alert.show("未检测到视频音频设备或该设备被占用！");
 					}
-					
+
 				}
-				else if(evt.info.code == "NetConnection.Connect.Failed")
+				else if (evt.info.code == "NetConnection.Connect.Failed")
 				{
 					Alert.show("连接服务器失败");
 				}
-				else if(evt.info.code == "NetStream.Publish.BadName")
+				else if (evt.info.code == "NetStream.Publish.BadName")
 				{
 					Alert.show("视频已发布！");
 				}
-				else if(evt.info.code == "NetStream.Record.NoAccess")
+				else if (evt.info.code == "NetStream.Record.NoAccess")
 				{
 					Alert.show("流仍在播放！");
 				}
@@ -138,43 +152,113 @@
 			{
 				Alert.show("securityErrorHandler: " + event);
 			}
-			
-			
+
+
 			public function onBWDone():void
 			{
 
 			}
-			
-
-			
-			
-			
-			
-			
 		]]>
 	</fx:Script>
+	<!--
+		 <s:VGroup>
+		 <s:Label text="流媒体服务器地址"/>
+		 <s:TextInput id="ti"
+		 width="200"
+		 text=""/>
 
-	<s:VGroup>
-		<s:Label text="流媒体服务器地址"/>
-		<s:TextInput id="ti"
-					 width="200"
-					 text=""/>
+		 <s:Button id="publishBtn"
+		 label="publish"
+		 click="publishHandler(event)"/>
 
-		<s:Button id="publishBtn"
-				  label="publish"
-				  click="publishHandler(event)"/>
-		
-		<s:Button id="stopBtn"
-				  label="stop"
-				  click="stopHandler(event)"/>
+		 <s:Button id="stopBtn"
+		 label="stop"
+		 click="stopHandler(event)"/>
 
-		<s:VideoDisplay id="videoDisplay"/>
-		
-	</s:VGroup>
+		 <s:VideoDisplay id="videoDisplay"/>
+
+		 </s:VGroup>
+	-->
+
+	<s:VideoDisplay id="videoDisplay"
+					x="200"
+					y="10"/>
+
+	<s:Panel x="100"
+			 y="310"
+			 width="600"
+			 height="150"
+			 title="直播发布">
+
+		<s:Group width="250"
+				 x="10"
+				 y="10">
+			<s:Label text="流媒体服务器地址"
+					 y="5"/>
+			<s:TextInput id="ti"
+						 width="100"
+						 x="120"
+						 text=""/>
+		</s:Group>
+
+
+
+		<s:Group width="250"
+				 x="340"
+				 y="10">
+			<s:Label text="画面品质(0~100)"
+					 y="5"/>
+			<s:TextInput id="qualityInput"
+						 width="100"
+						 x="120"
+						 text="85"/>
+		</s:Group>
+
+
+		<s:Group width="250"
+				 x="10"
+				 y="40">
+			<s:Label text="可用最大带宽(字节/秒)"
+					 y="5"/>
+			<s:TextInput id="bandwidthInput"
+						 width="100"
+						 x="120"
+						 text="0"/>
+		</s:Group>
+
+
+		<s:Group width="250"
+				 x="340"
+				 y="40">
+			<s:Label text="捕捉速率(帧/每秒)"
+					 y="5"/>
+			<s:TextInput id="fpsInput"
+						 width="100"
+						 x="120"
+						 text="8"/>
+		</s:Group>
+
+
+
+		<s:Group width="500"
+				 x="100"
+				 y="80">
+			<s:Button id="publishBtn"
+					  label="发布"
+					  click="publishHandler(event)"
+					  x="100"/>
+
+			<s:Button id="stopBtn"
+					  label="停止"
+					  click="stopHandler(event)"
+					  x="200"/>
+		</s:Group>
 
 
 
 
+
+	</s:Panel>
 
 
 

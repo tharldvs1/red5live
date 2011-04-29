@@ -43,6 +43,8 @@
 
 			private function init():void
 			{
+				var cr:Copyright=new Copyright(this);
+				
 				nc=new NetConnection();
 				nc.addEventListener(NetStatusEvent.NET_STATUS, connectHandler);
 				nc.addEventListener(AsyncErrorEvent.ASYNC_ERROR, asyncHandler);
