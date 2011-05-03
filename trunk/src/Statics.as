@@ -53,7 +53,7 @@ package
 		 * http://172.20.207.212:8080/Red5Live/pages/publish.html
 		 * http://172.20.207.212:8080/Red5Live/pages/play.html
 		 * 
-		 * 本地 172.20.204.50：
+		 * 本地 172.21.39.242：
 		 * http://localhost:5080/oflaDemo/Red5Live/pages/publish.html
 		 * http://localhost:5080/oflaDemo/Red5Live/pages/play.html
 		 * 
