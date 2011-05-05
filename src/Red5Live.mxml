@@ -98,7 +98,7 @@
 
 						//Test.t(mic.activityLevel);
 						mic.setUseEchoSuppression(false); //回声
-						mic.setLoopBack(true); //传送至本地扬声器 true
+						mic.setLoopBack(false); //传送至本地扬声器 true
 						mic.setSilenceLevel(50, 2000); // 0~100，100完全停止麦克风检测静音，从而不发送activity 事件，0则细微的声音也会捕获； 0~2000毫秒，判断声音停止时间。
 						mic.gain=100; //麦克风放大信号的程度。有效值为 0 到 100。默认值为 50。
 

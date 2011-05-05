@@ -40,7 +40,7 @@ package
 		*/
 		
 		
-		public static const defaultVideoPath:String = "../pages/DarkKnight.flv";//直播前默认视频
+		public static const defaultVideoPath:String = "../pages/0.flv";//直播前默认视频
 		
 		
 		
