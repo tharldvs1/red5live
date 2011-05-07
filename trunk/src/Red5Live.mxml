@@ -107,8 +107,8 @@
 						ns.attachCamera(cam);
 						ns.attachAudio(mic);
 
-						ns.publish(Statics.streamNAME, "record");
-						//ns.publish(Statics.streamNAME, "append");
+						//ns.publish(Statics.streamNAME, "record");
+						ns.publish(Statics.streamNAME, "append");
 
 						vi.width=Statics.clientWidth;
 						vi.height=Statics.clientHeight;
